@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'groovy'
+}
+
+repositories {
+    jcenter()
+}
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
+dependencies {
+    implementation 'info.picocli:picocli:3.9.6'
+    runtime 'info.picocli:picocli-codegen:3.9.6'
+    runtime 'org.fusesource.jansi:jansi:1.18'
+}
+
+mainClassName = 'hands.on.operators.KillPodOperator'
+
+task copyRuntimeLibs(type: Copy) {
+    into "$buildDir/libs"
+    from configurations.runtime
+}
+
+assemble.finalizedBy copyRuntimeLibs
+
+task reflectionConfigGenerator(description: 'Generate reflection config', dependsOn: 'assemble', type: JavaExec) {
+    main = 'picocli.codegen.aot.graalvm.ReflectionConfigGenerator'
+    classpath = sourceSets.main.runtimeClasspath
+    args = ['hands.on.operators.KillPodOperator', '--output', 'build/reflect.json']
+}
+
+task graalNativeImage(description: 'Generate native image with GraalVM', dependsOn: 'reflectionConfigGenerator', type: Exec) {
+    workingDir "$buildDir"
+    commandLine = [
+            'native-image',
+            '-cp', 'libs/picocli-3.9.6.jar:libs/picocli-codegen-3.9.6.jar:libs/jansi-1.18.jar:libs/killpod-operator.jar',
+            '-H:ReflectionConfigurationFiles=reflect.json',
+            '-H:+ReportUnsupportedElementsAtRuntime',
+            '-H:+ReportExceptionStackTraces',
+            '--initialize-at-run-time=org.fusesource.jansi.WindowsAnsiOutputStream',
+            '--no-server',
+            '--enable-http',
+            '--enable-https',
+            'hands.on.operators.KillPodOperator',
+            'killpod'
+    ]
+}
