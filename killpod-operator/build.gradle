@@ -45,6 +45,6 @@ task graalNativeImage(description: 'Generate native image with GraalVM', depends
             '--enable-http',
             '--enable-https',
             'hands.on.operators.KillPodOperator',
-            'killpod'
+            'killpodop'
     ]
 }
