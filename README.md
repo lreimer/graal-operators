@@ -14,8 +14,16 @@ jabba install graalvm@19.2.1
 jabba use graalvm@19.2.1
 
 export GRAALVM_HOME=$JAVA_HOME
+
+gu available
+gu install llvm-toolchain
+gu install native-image
 ```
 
+## Kill Pod Operator
+
+
+## Super Secret Operator
 
 
 ## Maintainer
