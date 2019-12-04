@@ -13,6 +13,8 @@ targetCompatibility = "1.8"
 
 dependencies {
     implementation 'info.picocli:picocli:3.9.6'
+    implementation 'io.fabric8:kubernetes-client:4.6.3'
+
     runtime 'info.picocli:picocli-codegen:3.9.6'
     runtime 'org.fusesource.jansi:jansi:1.18'
 }
@@ -21,7 +23,8 @@ mainClassName = 'hands.on.operators.KillPodOperator'
 
 task copyRuntimeLibs(type: Copy) {
     into "$buildDir/libs"
-    from configurations.runtime
+    from sourceSets.main.runtimeClasspath
+    include "*.jar"
 }
 
 assemble.finalizedBy copyRuntimeLibs

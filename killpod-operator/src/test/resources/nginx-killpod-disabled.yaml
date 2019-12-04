@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-killpod-disabled
+  annotations:
+    killpod/enabled: false
+    killpod/application: nginx-killpod-disabled
+    killpod/delay: "30"
+    killpod/amount: "1"
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        killpod/application: nginx-killpod-disabled
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.17.6-alpine
+          ports:
+            - containerPort: 80
+
