@@ -2,19 +2,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-killpod-enabled
-  annotations:
-    killpod/enabled: true
+  labels:
+    killpod/enabled: "true"
     killpod/application: nginx-killpod-enabled
     killpod/delay: "30"
     killpod/amount: "2"
 spec:
   selector:
     matchLabels:
-      app: nginx
+      app: nginx-killpod-enabled
   replicas: 4
   template:
     metadata:
       labels:
+        app: nginx-killpod-enabled
         killpod/application: nginx-killpod-enabled
     spec:
       containers:

@@ -13,8 +13,10 @@ targetCompatibility = "1.8"
 
 dependencies {
     implementation 'info.picocli:picocli:3.9.6'
-    implementation 'io.fabric8:kubernetes-client:4.6.3'
+    implementation 'io.fabric8:kubernetes-client:4.3.1'
+    compile 'org.slf4j:slf4j-api:1.7.26'
 
+    runtime 'org.slf4j:slf4j-simple:1.7.26'
     runtime 'info.picocli:picocli-codegen:3.9.6'
     runtime 'org.fusesource.jansi:jansi:1.18'
 }
