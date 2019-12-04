@@ -16,9 +16,14 @@ dependencies {
     implementation 'io.fabric8:kubernetes-client:4.3.1'
     compile 'org.slf4j:slf4j-api:1.7.26'
 
+    // runtime 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.9'
     runtime 'org.slf4j:slf4j-simple:1.7.26'
     runtime 'info.picocli:picocli-codegen:3.9.6'
     runtime 'org.fusesource.jansi:jansi:1.18'
+
+    // otherwise use --allow-incomplete-classpath option for native-image
+    // runtime 'org.bouncycastle:bcprov-ext-jdk15on:1.62'
+    // runtime 'org.bouncycastle:bcpkix-jdk15on:1.62'
 }
 
 mainClassName = 'hands.on.operators.KillPodOperator'
@@ -37,14 +42,23 @@ task reflectionConfigGenerator(description: 'Generate reflection config', depend
     args = ['hands.on.operators.KillPodOperator', '--output', 'build/reflect.json']
 }
 
+String getClasspath() {
+    def cp = 'libs/' + file("$buildDir/libs").list().join(':libs/')
+    println cp
+    cp
+}
+
 task graalNativeImage(description: 'Generate native image with GraalVM', dependsOn: 'reflectionConfigGenerator', type: Exec) {
     workingDir "$buildDir"
     commandLine = [
             'native-image',
-            '-cp', 'libs/picocli-3.9.6.jar:libs/picocli-codegen-3.9.6.jar:libs/jansi-1.18.jar:libs/killpod-operator.jar',
+            '-cp', getClasspath(),
             '-H:ReflectionConfigurationFiles=reflect.json',
             '-H:+ReportUnsupportedElementsAtRuntime',
             '-H:+ReportExceptionStackTraces',
+            '-H:+AddAllCharsets',
+            // '--allow-incomplete-classpath',
+            // '--no-fallback',
             '--initialize-at-run-time=org.fusesource.jansi.WindowsAnsiOutputStream',
             '--no-server',
             '--enable-http',
