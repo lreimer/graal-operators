@@ -3,6 +3,9 @@ package hands.on.operators.graal;
 import com.oracle.svm.core.annotate.Substitute;
 import com.oracle.svm.core.annotate.TargetClass;
 
+/**
+ * Credit for this class goes to the Quarkus Kubernetes Client extension developers. Thanks!
+ */
 @TargetClass(className = "io.fabric8.kubernetes.internal.KubernetesDeserializer")
 public final class KubernetesDeserializerSubstitutions {
 
