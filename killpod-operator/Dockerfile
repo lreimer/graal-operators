@@ -7,8 +7,10 @@ COPY build/libs/ /killpod-operator/libs
 
 WORKDIR /killpod-operator
 
+RUN ln -s /opt/graalvm-ce-19.2.1/jre/lib/libsunec.a
+
 RUN native-image \
-    -cp libs/jackson-dataformat-yaml-2.9.9.jar:libs/jackson-core-2.9.9.jar:libs/jackson-databind-2.9.9.jar:libs/picocli-codegen-3.9.6.jar:libs/slf4j-simple-1.7.26.jar:libs/javax.el-3.0.1-b11.jar:libs/okhttp-3.12.0.jar:libs/slf4j-api-1.7.26.jar:libs/zjsonpatch-0.3.0.jar:libs/logging-interceptor-3.12.0.jar:libs/kubernetes-model-common-4.3.1.jar:libs/snakeyaml-1.23.jar:libs/kubernetes-client-4.3.1.jar:libs/jackson-module-jaxb-annotations-2.9.9.jar:libs/jackson-annotations-2.9.0.jar:libs/picocli-3.9.6.jar:libs/validation-api-2.0.1.Final.jar:libs/jul-to-slf4j-1.7.26.jar:libs/okio-1.15.0.jar:libs/killpod-operator.jar:libs/generex-1.0.2.jar:libs/jansi-1.18.jar:libs/kubernetes-model-4.3.1.jar:libs/automaton-1.11-8.jar \
+    -cp libs/okhttp-3.12.6.jar:libs/jakarta.xml.bind-api-2.3.2.jar:libs/picocli-codegen-3.9.6.jar:libs/logging-interceptor-3.12.6.jar:libs/slf4j-simple-1.7.26.jar:libs/kubernetes-client-4.6.3.jar:libs/zjsonpatch-0.3.0.jar:libs/jackson-core-2.10.0.jar:libs/bcprov-ext-jdk15on-1.62.jar:libs/kubernetes-model-common-4.6.3.jar:libs/snakeyaml-1.24.jar:libs/picocli-3.9.6.jar:libs/jackson-dataformat-yaml-2.10.0.jar:libs/jakarta.activation-api-1.2.1.jar:libs/kubernetes-model-4.6.3.jar:libs/jackson-module-jaxb-annotations-2.10.0.jar:libs/okio-1.15.0.jar:libs/slf4j-api-1.7.29.jar:libs/bcprov-jdk15on-1.62.jar:libs/killpod-operator.jar:libs/generex-1.0.2.jar:libs/jansi-1.18.jar:libs/bcpkix-jdk15on-1.62.jar:libs/jackson-annotations-2.10.0.jar:libs/jackson-databind-2.10.0.jar:libs/automaton-1.11-8.jar \
     -H:ReflectionConfigurationFiles=reflect.json \
     -H:+ReportUnsupportedElementsAtRuntime \
     -H:+ReportExceptionStackTraces \
