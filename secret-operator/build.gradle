@@ -1,3 +1,9 @@
+buildscript {
+    dependencies {
+        classpath 'io.fabric8:kubernetes-model:4.6.3'
+    }
+}
+
 plugins {
     id 'java'
     id 'application'
@@ -13,15 +19,26 @@ targetCompatibility = "1.8"
 
 dependencies {
     implementation 'info.picocli:picocli:3.9.6'
+    implementation 'io.fabric8:kubernetes-client:4.6.3'
+    compile 'org.slf4j:slf4j-api:1.7.26'
+    compileOnly 'org.graalvm.nativeimage:svm:19.3.0'
+
+    runtime 'org.slf4j:slf4j-simple:1.7.26'
     runtime 'info.picocli:picocli-codegen:3.9.6'
     runtime 'org.fusesource.jansi:jansi:1.18'
+
+    // otherwise use --allow-incomplete-classpath option for native-image
+    // or use the CertUtilsSubstitutions from the Quarkus Kubernetes client extension
+    runtime 'org.bouncycastle:bcprov-ext-jdk15on:1.62'
+    runtime 'org.bouncycastle:bcpkix-jdk15on:1.62'
 }
 
 mainClassName = 'hands.on.operators.SuperSecretOperator'
 
 task copyRuntimeLibs(type: Copy) {
     into "$buildDir/libs"
-    from configurations.runtime
+    from sourceSets.main.runtimeClasspath
+    include "*.jar"
 }
 
 assemble.finalizedBy copyRuntimeLibs
@@ -32,19 +49,203 @@ task reflectionConfigGenerator(description: 'Generate reflection config', depend
     args = ['hands.on.operators.SuperSecretOperator', '--output', 'build/reflect.json']
 }
 
+
+import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
+
+task extendReflectJson {
+    doLast {
+        def reflectJson = file("$buildDir/reflect.json")
+        def json = new JsonSlurper().parseText(reflectJson.text)
+
+        json << getReflectInfo("io.fabric8.kubernetes.internal.KubernetesDeserializer")
+
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Config")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.NamedCluster")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Cluster")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.NamedContext")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Context")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Preferences")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.NamedExtension")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.NamedAuthInfo")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.AuthInfo")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.AuthProviderConfig")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ExecConfig")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ExecEnvVar")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Pod")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodList")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodStatus")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodCondition")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ContainerStatus")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ContainerState")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ContainerStateRunning")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ContainerStateTerminated")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ContainerStateWaiting")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ListMeta")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ObjectMeta")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ManagedFieldsEntry")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.FieldsV1")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.LabelSelector")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.LabelSelectorRequirement")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.IntOrString")
+        json << getReflectInfo('io.fabric8.kubernetes.api.model.IntOrString$Deserializer')
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodTemplateSpec")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodSpec")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Affinity")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.NodeAffinity")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PreferredSchedulingTerm")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.NodeSelector")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.NodeSelectorTerm")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.NodeSelectorRequirement")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodAffinity")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodAffinityTerm")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.WeightedPodAffinityTerm")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodAntiAffinity")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Container")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.EnvFromSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ConfigMapEnvSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.SecretEnvSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Lifecycle")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Handler")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ExecAction")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.HTTPGetAction")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.HTTPHeader")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.TCPSocketAction")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Probe")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ContainerPort")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodDNSConfig")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodDNSConfigOption")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.HostAlias")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.LocalObjectReference")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.OwnerReference")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.TypedLocalObjectReference")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ObjectFieldSelector")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodReadinessGate")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PodSecurityContext")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.SELinuxOptions")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Sysctl")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.WindowsSecurityContextOptions")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Toleration")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Volume")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.AWSElasticBlockStoreVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.AzureDiskVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.AzureFileVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.CephFSVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.CinderVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ConfigMapVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.KeyToPath")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.CSIVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.DownwardAPIVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.DownwardAPIVolumeFile")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ResourceFieldSelector")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Quantity")
+        json << getReflectInfo('io.fabric8.kubernetes.api.model.Quantity$Deserializer')
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.FCVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.FlexVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.FlockerVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.GCEPersistentDiskVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.GitRepoVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.GlusterfsVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.HostPathVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ISCSIVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.NFSVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PersistentVolumeClaimVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PersistentVolume")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PersistentVolumeClaim")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PersistentVolumeClaimSpec")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ResourceRequirements")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PhotonPersistentDiskVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.PortworxVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ProjectedVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.VolumeProjection")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ConfigMapProjection")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.DownwardAPIProjection")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.DownwardAPIVolumeFile")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.QuobyteVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.RBDVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ScaleIOVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.SecretVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Secret")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.SecretReference")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.StorageOSVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.VsphereVirtualDiskVolumeSource")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.WatchEvent")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.VolumeDevice")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.VolumeMount")
+
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.Deployment")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentList")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentSpec")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentStrategy")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.RollingUpdateDeployment")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentStatus")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentCondition")
+
+        json << getReflectInfo("java.util.ArrayList")
+        json << getReflectInfo("java.util.HashMap")
+
+        def extendedReflectJson = file("$buildDir/extended-reflect.json")
+        extendedReflectJson.write(new JsonBuilder(json).toPrettyString())
+    }
+}
+
+def getReflectInfo(String name) {
+    def info = [
+            name                   : name,
+            allDeclaredConstructors: true,
+            allPublicConstructors  : true,
+            allDeclaredMethods     : true,
+            allPublicMethods       : true,
+            fields                  : getFields(name)
+    ]
+    info
+}
+
+def getFields(String name) {
+    def fields = []
+
+    Class clazz = Class.forName(name)
+    def declaredFields = clazz.getDeclaredFields()
+    declaredFields.each {
+        fields << [name: it.name]
+    }
+
+    fields
+}
+
+reflectionConfigGenerator.finalizedBy extendReflectJson
+
+String getClasspath() {
+    def cp = 'libs/' + file("$buildDir/libs").list().join(':libs/')
+    logger.lifecycle("Make sure these classpath libraries match the once in the Dockerfile")
+    logger.lifecycle(cp)
+    cp
+}
+
 task graalNativeImage(description: 'Generate native image with GraalVM', dependsOn: 'reflectionConfigGenerator', type: Exec) {
     workingDir "$buildDir"
     commandLine = [
             'native-image',
-            '-cp', 'libs/picocli-3.9.6.jar:libs/picocli-codegen-3.9.6.jar:libs/jansi-1.18.jar:libs/killpod-operator.jar',
-            '-H:ReflectionConfigurationFiles=reflect.json',
+            '-cp', getClasspath(),
+            '-H:ReflectionConfigurationFiles=extended-reflect.json',
             '-H:+ReportUnsupportedElementsAtRuntime',
             '-H:+ReportExceptionStackTraces',
+            '-H:+AddAllCharsets',
+            //'--allow-incomplete-classpath',
+            // '--no-fallback',
             '--initialize-at-run-time=org.fusesource.jansi.WindowsAnsiOutputStream',
             '--no-server',
             '--enable-http',
             '--enable-https',
             'hands.on.operators.SuperSecretOperator',
-            'supersecretop'
+            'secretop'
     ]
 }
+
+task copyEllipticCurveCrypto(type: Copy) {
+    from file(System.getenv("GRAALVM_HOME") + "/jre/lib/")
+    into "$buildDir"
+    include "libsunec.*"
+}
+
+graalNativeImage.finalizedBy copyEllipticCurveCrypto
