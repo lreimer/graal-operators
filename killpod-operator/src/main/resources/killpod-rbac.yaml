@@ -6,22 +6,33 @@ metadata:
   namespace: default
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   name: killpod-operator
   namespace: default
 rules:
   - apiGroups: [""]
-    resources: ["pods"]
-    verbs: ["list", "get", "delete"]
+    resources:
+      - "pods"
+      - "namespaces"
+      - "events"
+    verbs: ["list", "get", "delete", "watch"]
+  - apiGroups: ["extensions"]
+    resources:
+      - "deployments"
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources:
+      - "deployments"
+    verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: killpod-operator
   namespace: default
 roleRef:
-  kind: Role
+  kind: ClusterRole
   name: killpod-operator
   apiGroup: rbac.authorization.k8s.io
 subjects:
