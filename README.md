@@ -20,7 +20,7 @@ gu install llvm-toolchain
 gu install native-image
 ```
 
-## KillPod Operator
+## Kill Pod Operator
 
 This is a super simple Chaos monkey style operator inspired by Kubemonkey. It
 will regularly kill the pods of deployments that are `killpod/enabled`. The
@@ -28,7 +28,18 @@ usage instructions are found [here](killpod-operator/README.md).
 
 ## Microservice Operator
 
+This operator aims to make developer live a lot easier by abstracting the usual
+`Deployment`, `Service` and `ConfigMap` definitions using a simple and unified
+`Microservice` custom resource. The operator will then manage the underlying
+Kubernetes resources automagically.
+The usage instructions are found [here](microservice-operator/README.md).
+
 ## Super Secret Operator
+
+This operator allows you to apply super encrypted secrets, the operator will
+then decrypt and manage the ordinary secrets in Kubernetes. Inspired by Sealed Secrets
+from Bitnami found here https://github.com/bitnami-labs/sealed-secrets. The
+usage instructions are found [here](secret-operator/README.md).
 
 ## Maintainer
 

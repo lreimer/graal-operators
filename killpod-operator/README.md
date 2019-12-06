@@ -1,4 +1,4 @@
-# KillPod Operator
+# Kill Pod Operator
 
 This is a super simple Chaos monkey style operator inspired by Kubemonkey. It
 will regularly kill the pods of deployments that are `killpod/enabled`.
