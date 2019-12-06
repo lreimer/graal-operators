@@ -20,12 +20,15 @@ gu install llvm-toolchain
 gu install native-image
 ```
 
-## Kill Pod Operator
+## KillPod Operator
+
+This is a super simple Chaos monkey style operator inspired by Kubemonkey. It
+will regularly kill the pods of deployments that are `killpod/enabled`. The
+usage instructions are found [here](killpod-operator/README.md).
 
 ## Microservice Operator
 
 ## Super Secret Operator
-
 
 ## Maintainer
 
