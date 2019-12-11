@@ -24,8 +24,9 @@ dependencies {
     implementation 'info.picocli:picocli:3.9.6'
     implementation 'io.fabric8:kubernetes-client:4.6.3'
     compile 'org.slf4j:slf4j-api:1.7.26'
+
     compileOnly ':svm:19.2.1'
-    // compile 'org.graalvm.nativeimage:svm:19.3.0'
+    // compileOnly 'org.graalvm.nativeimage:svm:19.3.0'
 
     runtime 'org.slf4j:slf4j-simple:1.7.26'
     runtime 'info.picocli:picocli-codegen:3.9.6'
