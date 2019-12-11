@@ -31,4 +31,4 @@ COPY --from=debian:10.2 /usr/lib/x86_64-linux-gnu/libz* /usr/lib/x86_64-linux-gn
 COPY --from=debian:10.2 /lib/x86_64-linux-gnu/libz* /lib/x86_64-linux-gnu/
 
 ENTRYPOINT ["/supersecretop"]
-CMD ["-n", "default", "-t", "SECONDS"]
+CMD ["-n", "default", "-p", "/secret/publicKey"]
