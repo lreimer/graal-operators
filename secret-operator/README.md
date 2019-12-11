@@ -11,8 +11,12 @@ $ ./gradlew clean ass
 $ ./gradlew run --args="-n default -p src/test/resources/publicKey"
 
 # this will build the native image for the local platform
+$ export GRAALVM_HOME=$JAVA_HOME
 $ ./gradlew reflectionConfigGenerator
 $ ./gradlew graalNativeImage
+
+$ cd build
+$ ./supersecretop -n default -p ../src/test/resources/publicKey
 
 # this will build the native image for Linux to run in K8s
 $ docker build -t secret-operator:1.0 .
