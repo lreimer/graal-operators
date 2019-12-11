@@ -1,4 +1,4 @@
-FROM oracle/graalvm-ce:19.3.0-java8 AS builder
+FROM oracle/graalvm-ce:19.2.1 AS builder
 
 RUN gu install native-image && mkdir /secret-operator
 
@@ -25,7 +25,7 @@ MAINTAINER Mario-Leander Reimer <mario-leander.reimer@qaware.de>
 LABEL version="1.0"
 
 COPY --from=builder /secret-operator/supersecretop /
-COPY --from=builder /opt/graalvm-ce-java8-19.3.0/jre/lib/amd64/libsunec.so /
+COPY --from=builder /opt/graalvm-ce-19.2.1/jre/lib/amd64/libsunec.so /
 
 COPY --from=debian:10.2 /usr/lib/x86_64-linux-gnu/libz* /usr/lib/x86_64-linux-gnu/
 COPY --from=debian:10.2 /lib/x86_64-linux-gnu/libz* /lib/x86_64-linux-gnu/

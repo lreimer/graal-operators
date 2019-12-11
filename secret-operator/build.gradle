@@ -1,6 +1,7 @@
 buildscript {
     dependencies {
         classpath 'io.fabric8:kubernetes-model:4.6.3'
+        classpath 'io.fabric8:kubernetes-client:4.6.3'
     }
 }
 
@@ -12,6 +13,9 @@ plugins {
 
 repositories {
     jcenter()
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 sourceCompatibility = "1.8"
@@ -21,7 +25,9 @@ dependencies {
     implementation 'info.picocli:picocli:3.9.6'
     implementation 'io.fabric8:kubernetes-client:4.6.3'
     compile 'org.slf4j:slf4j-api:1.7.26'
-    compileOnly 'org.graalvm.nativeimage:svm:19.3.0'
+
+    compileOnly ':svm:19.2.1'
+    // compileOnly 'org.graalvm.nativeimage:svm:19.3.0'
 
     runtime 'org.slf4j:slf4j-simple:1.7.26'
     runtime 'info.picocli:picocli-codegen:3.9.6'
@@ -34,6 +40,8 @@ dependencies {
 }
 
 mainClassName = 'hands.on.operators.SuperSecretOperator'
+
+task kick(dependsOn: 'clean') {}
 
 task copyRuntimeLibs(type: Copy) {
     into "$buildDir/libs"
@@ -173,18 +181,57 @@ task extendReflectJson {
         json << getReflectInfo("io.fabric8.kubernetes.api.model.VolumeDevice")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.VolumeMount")
 
+
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinitionList")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinitionSpec")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinitionStatus")
 
-        json << getReflectInfo("hands.on.operators.crd.SuperSecret")
-        json << getReflectInfo("hands.on.operators.crd.SuperSecretList")
-        json << getReflectInfo("hands.on.operators.crd.SuperSecretSpec")
-        json << getReflectInfo("hands.on.operators.crd.SuperSecretStatus")
-
         json << getReflectInfo("java.util.ArrayList")
         json << getReflectInfo("java.util.HashMap")
+
+        json << getReflectInfo("io.fabric8.kubernetes.client.CustomResource")
+        json << getReflectInfo("io.fabric8.kubernetes.client.CustomResourceList")
+
+        json << [
+                name                   : 'hands.on.operators.crd.SuperSecret',
+                allDeclaredConstructors: true,
+                allPublicConstructors  : true,
+                allDeclaredMethods     : true,
+                allPublicMethods       : true,
+                fields                 : [
+                        [name: 'spec'],
+                        [name: 'status']
+                ]
+        ]
+        json << [
+                name                   : 'hands.on.operators.crd.SuperSecretList',
+                allDeclaredConstructors: true,
+                allPublicConstructors  : true,
+                allDeclaredMethods     : true,
+                allPublicMethods       : true,
+                fields                 : [
+                ]
+        ]
+        json << [
+                name                   : 'hands.on.operators.crd.SuperSecretSpec',
+                allDeclaredConstructors: true,
+                allPublicConstructors  : true,
+                allDeclaredMethods     : true,
+                allPublicMethods       : true,
+                fields                 : [
+                        [name: 'secretData']
+                ]
+        ]
+        json << [
+                name                   : 'hands.on.operators.crd.SuperSecretStatus',
+                allDeclaredConstructors: true,
+                allPublicConstructors  : true,
+                allDeclaredMethods     : true,
+                allPublicMethods       : true,
+                fields                 : []
+        ]
 
         def extendedReflectJson = file("$buildDir/extended-reflect.json")
         extendedReflectJson.write(new JsonBuilder(json).toPrettyString())
@@ -198,7 +245,7 @@ def getReflectInfo(String name) {
             allPublicConstructors  : true,
             allDeclaredMethods     : true,
             allPublicMethods       : true,
-            fields                  : getFields(name)
+            fields                 : getFields(name)
     ]
     info
 }
