@@ -1,19 +1,27 @@
 package hands.on.operators;
 
-import hands.on.operators.crd.DoneableSuperSecret;
 import hands.on.operators.crd.SuperSecret;
-import hands.on.operators.crd.SuperSecretList;
 import io.fabric8.kubernetes.api.model.DoneableSecret;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.Cipher;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -27,24 +35,34 @@ public class SuperSecretController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SuperSecretController.class);
 
     private final KubernetesClient client;
-    private final MixedOperation<SuperSecret, SuperSecretList, DoneableSuperSecret, Resource<SuperSecret, DoneableSuperSecret>> superSecretClient;
     private final SharedIndexInformer<SuperSecret> superSecretInformer;
     private final BlockingQueue<SuperSecret> workqueue;
     private final String namespace;
+    private final File publicKeyFile;
+    private final Cipher cipher;
 
-    public SuperSecretController(KubernetesClient client, MixedOperation<SuperSecret, SuperSecretList, DoneableSuperSecret, Resource<SuperSecret, DoneableSuperSecret>> superSecretClient, SharedIndexInformer<SuperSecret> superSecretInformer, String namespace) {
+    public SuperSecretController(KubernetesClient client, SharedIndexInformer<SuperSecret> superSecretInformer, String namespace, File publicKeyFile) throws GeneralSecurityException {
         this.client = client;
-        this.superSecretClient = superSecretClient;
         this.superSecretInformer = superSecretInformer;
         this.workqueue = new ArrayBlockingQueue<>(8);
         this.namespace = namespace;
+        this.publicKeyFile = publicKeyFile;
+        this.cipher = Cipher.getInstance("RSA");
     }
 
     /**
      * Register for SuperSecret change events.
      */
-    public void create() {
+    public void create() throws GeneralSecurityException, IOException {
         LOGGER.info("Creating SuperSecretController ...");
+
+        byte[] keyBytes = Files.readAllBytes(publicKeyFile.toPath());
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        PublicKey publicKey = kf.generatePublic(spec);
+
+        this.cipher.init(Cipher.DECRYPT_MODE, publicKey);
+
         superSecretInformer.addEventHandler(new ResourceEventHandler<SuperSecret>() {
             @Override
             public void onAdd(SuperSecret superSecret) {
@@ -98,10 +116,21 @@ public class SuperSecretController {
     private void reconcile(SuperSecret superSecret) {
         Optional<Secret> existing = getSecret(superSecret);
         Secret secret = existing.orElseGet(() -> createSecret(superSecret));
+        Map<String, String> secretData = secret.getData();
 
-        // TODO set decrypted values
-        secret.getData().putAll(superSecret.getSpec().getSecretData());
+        superSecret.getSpec().getSecretData().forEach((k, v) -> secretData.put(k, decrypt(v)));
+
         client.secrets().inNamespace(namespace).createOrReplace(secret);
+    }
+
+    private String decrypt(String superSecretValue) {
+        byte[] decode = Base64.getDecoder().decode(superSecretValue);
+        try {
+            return new String(cipher.doFinal(decode), StandardCharsets.UTF_8);
+        } catch (GeneralSecurityException e) {
+            LOGGER.warn("Unable to decrypt super secret value.", e);
+            return superSecretValue;
+        }
     }
 
     private Optional<Secret> getSecret(SuperSecret superSecret) {
@@ -126,6 +155,5 @@ public class SuperSecretController {
                 .endOwnerReference()
                 .endMetadata()
                 .build();
-
     }
 }
