@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.Cipher;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
@@ -118,18 +117,19 @@ public class SuperSecretController {
         Secret secret = existing.orElseGet(() -> createSecret(superSecret));
         Map<String, String> secretData = secret.getData();
 
-        superSecret.getSpec().getSecretData().forEach((k, v) -> secretData.put(k, decrypt(v)));
+        Base64.Encoder encoder = Base64.getEncoder();
+        superSecret.getSpec().getSecretData().forEach((k, v) -> secretData.put(k, encoder.encodeToString(decrypt(v))));
 
-        client.secrets().inNamespace(namespace).createOrReplace(secret);
+        client.secrets().inNamespace(namespace).withName(secret.getMetadata().getName()).createOrReplace(secret);
     }
 
-    private String decrypt(String superSecretValue) {
+    private byte[] decrypt(String superSecretValue) {
         byte[] decode = Base64.getDecoder().decode(superSecretValue);
         try {
-            return new String(cipher.doFinal(decode), StandardCharsets.UTF_8);
+            return cipher.doFinal(decode);
         } catch (GeneralSecurityException e) {
             LOGGER.warn("Unable to decrypt super secret value.", e);
-            return superSecretValue;
+            return decode;
         }
     }
 
@@ -144,7 +144,7 @@ public class SuperSecretController {
     private Secret createSecret(SuperSecret superSecret) {
         return new SecretBuilder()
                 .withNewMetadata()
-                .withGenerateName(superSecret.getMetadata().getName())
+                .withName(superSecret.getMetadata().getName())
                 .withNamespace(superSecret.getMetadata().getNamespace())
                 .addNewOwnerReference()
                 .withController(true)
