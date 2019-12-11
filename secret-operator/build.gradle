@@ -173,6 +173,11 @@ task extendReflectJson {
         json << getReflectInfo("io.fabric8.kubernetes.api.model.VolumeDevice")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.VolumeMount")
 
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinitionList")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinitionSpec")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinitionStatus")
+
         json << getReflectInfo("hands.on.operators.crd.SuperSecret")
         json << getReflectInfo("hands.on.operators.crd.SuperSecretList")
         json << getReflectInfo("hands.on.operators.crd.SuperSecretSpec")
