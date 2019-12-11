@@ -8,9 +8,10 @@ from Bitnami found here https://github.com/bitnami-labs/sealed-secrets.
 
 ```
 $ ./gradlew clean ass
-$ ./gradlew reflectionConfigGenerator
+$ ./gradlew run --args="-n default -p src/test/resources/publicKey"
 
 # this will build the native image for the local platform
+$ ./gradlew reflectionConfigGenerator
 $ ./gradlew graalNativeImage
 
 # this will build the native image for Linux to run in K8s
@@ -55,6 +56,7 @@ spec:
 When you apply the `SuperSecret`, the operator should pick up and create an ordinary `Secret` with the decrypted value.
 
 ```bash
-$ kubectl apply -f src/test/resources/supersecret.test.yaml
+$ kubectl apply -f src/test/resources/supersecret-test.yaml
 $ kubectl get secret supersecret-test -o yaml
+$ echo 'U3VwZXJTZWNyZXRQYXNzd29yZA==' | base64 --decode
 ```
