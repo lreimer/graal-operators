@@ -246,3 +246,14 @@ task copyEllipticCurveCrypto(type: Copy) {
 }
 
 graalNativeImage.finalizedBy copyEllipticCurveCrypto
+
+task generateKeyPair(type: JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'hands.on.operators.SuperSecretKeyGenerator'
+}
+
+task encryptSuperSecretPassword(type: JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'hands.on.operators.SuperSecretEncryptor'
+    args 'SuperSecretPassword'
+}
