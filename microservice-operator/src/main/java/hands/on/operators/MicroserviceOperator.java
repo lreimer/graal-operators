@@ -15,13 +15,16 @@ import picocli.CommandLine.Command;
 /**
  * Main application class for the MicroserviceOperator operator. Bootstrapping of CLI and main loop.
  */
-@Command(version = "Super Secret Operator 1.0", mixinStandardHelpOptions = true)
+@Command(version = "Microservice Operator 1.0", mixinStandardHelpOptions = true)
 class MicroserviceOperator implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MicroserviceOperator.class);
 
     @CommandLine.Option(names = {"-n", "--namespace"}, defaultValue = "default", description = "the K8s namespace")
     private String namespace;
+
+    @CommandLine.Option(names = {"-r", "--resync"}, defaultValue = "5000", description = "the resync period in millis")
+    private long resyncPeriodInMillis = 5 * 1000;
 
     public static void main(String[] args) {
         CommandLine.run(new MicroserviceOperator(), args);
@@ -43,7 +46,7 @@ class MicroserviceOperator implements Runnable {
                     .build();
 
             SharedInformerFactory informerFactory = client.informers();
-            SharedIndexInformer<Microservice> superSecretInformer = informerFactory.sharedIndexInformerForCustomResource(superSecretCustomResourceDefinitionContext, Microservice.class, MicroserviceList.class, 5 * 1000);
+            SharedIndexInformer<Microservice> superSecretInformer = informerFactory.sharedIndexInformerForCustomResource(superSecretCustomResourceDefinitionContext, Microservice.class, MicroserviceList.class, resyncPeriodInMillis);
 
             MicroserviceController microserviceController = new MicroserviceController(client, superSecretInformer, namespace);
             microserviceController.create();

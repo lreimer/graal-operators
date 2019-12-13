@@ -14,8 +14,6 @@ spec:
     listKind: MicroserviceList
     plural: microservices
     singular: microservice
-    shortNames:
-      - ss
   validation:
     openAPIV3Schema:
       type: object
@@ -24,5 +22,7 @@ spec:
           type: integer
         image:
           type: string
-        labels:
-          type: object
+        ports:
+          type: array
+        serviceType:
+          type: string

@@ -181,6 +181,22 @@ task extendReflectJson {
         json << getReflectInfo("io.fabric8.kubernetes.api.model.VolumeDevice")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.VolumeMount")
 
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.Service")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ServiceSpec")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ServicePort")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.SessionAffinityConfig")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ClientIPConfig")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.ServiceStatus")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.LoadBalancerStatus")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.LoadBalancerIngress")
+
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.Deployment")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentList")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentSpec")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentStrategy")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.RollingUpdateDeployment")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentStatus")
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentCondition")
 
         json << getReflectInfo("io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition")
@@ -221,7 +237,10 @@ task extendReflectJson {
                 allDeclaredMethods     : true,
                 allPublicMethods       : true,
                 fields                 : [
-                        [name: 'image']
+                        [name: 'replicas'],
+                        [name: 'image'],
+                        [name: 'labels'],
+                        [name: 'ports']
                 ]
         ]
         json << [
