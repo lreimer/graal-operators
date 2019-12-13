@@ -96,6 +96,7 @@ task extendReflectJson {
         json << getReflectInfo("io.fabric8.kubernetes.api.model.LabelSelector")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.LabelSelectorRequirement")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.IntOrString")
+        json << getReflectInfo('io.fabric8.kubernetes.api.model.IntOrString$Serializer')
         json << getReflectInfo('io.fabric8.kubernetes.api.model.IntOrString$Deserializer')
         json << getReflectInfo("io.fabric8.kubernetes.api.model.PodTemplateSpec")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.PodSpec")
@@ -181,6 +182,7 @@ task extendReflectJson {
         json << getReflectInfo("io.fabric8.kubernetes.api.model.VolumeDevice")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.VolumeMount")
 
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.DoneableService")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.Service")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.ServiceSpec")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.ServicePort")
@@ -190,6 +192,7 @@ task extendReflectJson {
         json << getReflectInfo("io.fabric8.kubernetes.api.model.LoadBalancerStatus")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.LoadBalancerIngress")
 
+        json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DoneableDeployment")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.Deployment")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentList")
         json << getReflectInfo("io.fabric8.kubernetes.api.model.apps.DeploymentSpec")
@@ -211,7 +214,7 @@ task extendReflectJson {
         json << getReflectInfo("io.fabric8.kubernetes.client.CustomResourceList")
 
         json << [
-                name                   : 'hands.on.operators.crd.Micoservice',
+                name                   : 'hands.on.operators.crd.Microservice',
                 allDeclaredConstructors: true,
                 allPublicConstructors  : true,
                 allDeclaredMethods     : true,
@@ -239,8 +242,8 @@ task extendReflectJson {
                 fields                 : [
                         [name: 'replicas'],
                         [name: 'image'],
-                        [name: 'labels'],
-                        [name: 'ports']
+                        [name: 'ports'],
+                        [name: 'serviceType']
                 ]
         ]
         json << [
