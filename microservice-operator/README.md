@@ -10,6 +10,21 @@ Kubernetes resources automagically.
 This operator is just a demo. We should create liveness and readiness probes, and also resource constraints for
 the create deployment. Also there currently is no ConfigMap support.
 
+```yaml
+apiVersion: operators.on.hands/v1alpha1
+kind: Microservice
+metadata:
+  name: microservice-test
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  image: nginx:1.17.6
+  ports:
+    - containerPort: 80
+  serviceType: LoadBalancer
+```
+
 ## Building
 
 ```
