@@ -6,7 +6,7 @@ metadata:
     app: nginx
 spec:
   replicas: 2
-  image: nginx:1.17.6
+  image: nginx:1.17.6-alpine
   ports:
     - containerPort: 80
   serviceType: LoadBalancer
