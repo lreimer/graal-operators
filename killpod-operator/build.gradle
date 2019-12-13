@@ -221,7 +221,7 @@ def getFields(String name) {
 reflectionConfigGenerator.finalizedBy extendReflectJson
 
 String getClasspath() {
-    def cp = 'libs/' + file("$buildDir/libs").list().join(':libs/')
+    def cp = 'libs/' + file("$buildDir/libs").list()?.join(':libs/')
     logger.lifecycle("Make sure these classpath libraries match the once in the Dockerfile")
     logger.lifecycle(cp)
     cp
