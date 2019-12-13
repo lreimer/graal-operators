@@ -1,0 +1,9 @@
+apiVersion: operators.on.hands/v1alpha1
+kind: Microservice
+metadata:
+  name: microservice-test
+spec:
+  replicas: 2
+  image: nginx:1.7.9
+  labels:
+    app: nginx

@@ -1,0 +1,48 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: supersecret-operator
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: supersecret-operator
+rules:
+  - apiGroups: [""]
+    resources:
+      - "pods"
+      - "services"
+      - "configmaps"
+      - "namespaces"
+      - "events"
+    verbs: ["list", "get", "delete", "watch"]
+  - apiGroups: ["extensions"]
+    resources:
+      - "deployments"
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources:
+      - "deployments"
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources:
+      - "customresourcedefinitions"
+    verbs: ["get", "list"]
+  - apiGroups: ["operators.on.hands"]
+    resources:
+      - "microservices"
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: microservice-operator
+roleRef:
+  kind: ClusterRole
+  name: microservice-operator
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: microservice-operator
+    namespace: default
