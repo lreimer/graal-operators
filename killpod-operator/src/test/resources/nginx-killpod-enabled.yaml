@@ -5,7 +5,7 @@ metadata:
   labels:
     killpod/enabled: "true"
     killpod/application: nginx-killpod-enabled
-    killpod/delay: "30"
+    killpod/delay: "10"
     killpod/amount: "2"
 spec:
   selector:
