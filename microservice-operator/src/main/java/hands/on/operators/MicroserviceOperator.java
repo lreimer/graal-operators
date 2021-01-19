@@ -38,7 +38,7 @@ class MicroserviceOperator implements Runnable {
                 namespace = client.getNamespace();
             }
 
-            CustomResourceDefinitionContext superSecretCustomResourceDefinitionContext = new CustomResourceDefinitionContext.Builder()
+            CustomResourceDefinitionContext microserviceCustomResourceDefinitionContext = new CustomResourceDefinitionContext.Builder()
                     .withVersion("v1alpha1")
                     .withScope("Namespaced")
                     .withGroup("operators.on.hands")
@@ -46,9 +46,9 @@ class MicroserviceOperator implements Runnable {
                     .build();
 
             SharedInformerFactory informerFactory = client.informers();
-            SharedIndexInformer<Microservice> superSecretInformer = informerFactory.sharedIndexInformerForCustomResource(superSecretCustomResourceDefinitionContext, Microservice.class, MicroserviceList.class, resyncPeriodInMillis);
+            SharedIndexInformer<Microservice> microserviceInformer = informerFactory.sharedIndexInformerForCustomResource(microserviceCustomResourceDefinitionContext, Microservice.class, MicroserviceList.class, resyncPeriodInMillis);
 
-            MicroserviceController microserviceController = new MicroserviceController(client, superSecretInformer, namespace);
+            MicroserviceController microserviceController = new MicroserviceController(client, microserviceInformer, namespace);
             microserviceController.create();
 
             informerFactory.startAllRegisteredInformers();
